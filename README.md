@@ -46,10 +46,10 @@ We recommend trying **pogs** first for optimal performance.
 ## Overview
 We consider a causal mediation model where the treatment $ A \in \{0,1\} $ affects the outcome $ Y $ both directly and indirectly through a set of mediators $ \mathbf{M} \in \mathbb{R}^{q} $. The system is defined as:
 
-$$
-Y &=  (1-A)\left(\alpha_{0}+X^{\top} \beta_{0}+M^{\top} \gamma_{0}\right)+A\left(\alpha_{1}+X^{\top} \beta_{1}+M^{\top} \gamma_{1}\right)+\epsilon\\
-M &= (1-A)\left(\delta_{0}+\mathbf{B}_{0} X\right)+A\left(\delta_{1}+\mathbf{B}_{1} X\right)+  U
-$$
+
+$$Y =  (1-A)\left(\alpha_{0}+X^{\top} \beta_{0}+M^{\top} \gamma_{0}\right)+A\left(\alpha_{1}+X^{\top} \beta_{1}+M^{\top} \gamma_{1}\right)+\epsilon$$
+$$M = (1-A)\left(\delta_{0}+\mathbf{B}_{0} X\right)+A\left(\delta_{1}+\mathbf{B}_{1} X\right)+  U$$
+
 
 Here, $ X \in \mathbb{R}^{p} $ represents high-dimensional pre-treatment covariates, while $ \mathbf{M} \in \mathbb{R}^{q} $ are mediators that transmit part of the treatment effect. The parameters $ \beta_0, \beta_1 \in \mathbb{R}^{p} $ capture the direct effect of covariates on $ Y $, while $ \gamma_0, \gamma_1 \in \mathbb{R}^{q} $ quantify the influence of mediators. The matrices $ \mathbf{B}_0, \mathbf{B}_1 \in \mathbb{R}^{q \times p} $ determine how covariates influence the mediators.
 
