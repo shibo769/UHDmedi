@@ -21,7 +21,7 @@ You can install **UHDmedi** in two ways:
 ```r
 # Using devtools:
 library(devtools)
-install_github("XXX/UHDmedi")
+install_github("shibo769/UHDmedi")
 ```
 
 ### 2. Install from Local Tarball
