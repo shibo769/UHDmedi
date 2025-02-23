@@ -1,6 +1,3 @@
-Below is a complete, single Markdown block that you can copy directly into your README.md on GitHub. This README includes detailed package information, installation instructions, optimizer details, example usage (with R code), and a LaTeX block for the estimation algorithm—all in one Markdown file.
-
-```markdown
 # UHDmedi
 
 **UHDmedi** is an R package for estimating total, indirect, and direct effects under ultra-high dimensional mediators (UHD), including potential interaction effects. This package implements methods described in the preprint:
