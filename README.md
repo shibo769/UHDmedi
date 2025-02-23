@@ -140,7 +140,139 @@ boot_plots <- plots_check(boot_results$boot_samples)
 print(boot_plots$histogram)
 print(boot_plots$qqplot)
 ```
+## Example Output
 
+### **Simulated Data Output**
+```r
+> sim_data <- simData(nn = 30, p = 50, q = 20, variance = 0.1, k1 = 3, k2 = 6, s_X = 3, categorical = TRUE)
+The dim of X 30 60 
+The dim of M 30 20 
+The dim of A 30 1 
+The dim of Y 30 1 
+Dim of (X,M): 80
+> str(sim_data)
+List of 4
+ $ X: num [1:30, 1:60] 0.6201 2.1231 -0.4608 -0.2354 0.0602 ...
+ $ A: int [1:30] 0 0 1 1 0 0 1 1 0 0 ...
+ $ Y: num [1:30] 0.979 2.729 2.325 5.099 12.471 ...
+ $ M: num [1:30, 1:20] 0.574 0.408 0.686 0.439 0.707 ...
+
+eda_report()
+==========================================================
+                  EDA REPORT SUMMARY
+==========================================================
+
+----------------------------------------------------------
+                     DIMENSIONS
+----------------------------------------------------------
+X dimension: [1] 30 60
+M dimension: [1] 30 20
+Length of Y: 30 
+Length of A: 30 
+
+----------------------------------------------------------
+                    MISSING VALUES
+----------------------------------------------------------
+Missing values in X:
+  No missing values in X.
+
+Missing values in M:
+  No missing values in M.
+
+Missing values in Y: 0 
+Missing values in A: 0 
+
+----------------------------------------------------------
+                      SUMMARY OF Y
+----------------------------------------------------------
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ -4.261   2.510   5.058   4.597   6.030  12.471 
+
+----------------------------------------------------------
+                    DISTRIBUTION OF A
+----------------------------------------------------------
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.0000  1.0000  0.5667  1.0000  1.0000 
+
+----------------------------------------------------------
+                 CHARACTERISTICS FOR X
+----------------------------------------------------------
+Number of numeric columns in X: 50 
+Number of categorical columns in X: 10 
+Range of X: [ -3.298562 ,  3.174249 ]
+
+----------------------------------------------------------
+                 CHARACTERISTICS FOR M
+----------------------------------------------------------
+Range of M: [ 0.05860127 ,  0.987907 ]
+
+----------------------------------------------------------
+     TOP 10 CORRELATIONS (BY ABS. VALUE) WITH Y
+----------------------------------------------------------
+M with Y:
+ [1]  0.3240070 -0.3183457  0.2830364 -0.2557979  0.2479194  0.2473952 -0.2398461  0.2188564  0.2102471  0.2078837
+
+X with Y:
+ [1]  0.5563897  0.4977343 -0.4336580  0.4038666 -0.3934824  0.3362304  0.3352937  0.3197300 -0.3153891 -0.2988701
+
+----------------------------------------------------------
+               VARIANCE INFORMATION FOR M
+----------------------------------------------------------
+Minimum variance in M:
+  Column: 17 with variance: 0.01505739 
+Maximum variance in M:
+  Column: 2 with variance: 0.07436384 
+
+Scatterplot for the M column with minimum variance vs Y is stored in plots$scatter_plot.
+
+==========================================================
+                  END OF EDA REPORT
+==========================================================
+
+
+effects_result()
+----------------------------------------------------------
+               Debiased Y(.) Estimates
+----------------------------------------------------------
+Table: Debiased Y(.) Estimates
+
+|    | Estimate |
+|:---|:--------:|
+|Y11 | 5.440090 |
+|Y10 | 5.222723 |
+|Y00 | 5.102479 |
+
+----------------------------------------------------------
+               Effects Estimates
+----------------------------------------------------------
+Table: Effects Estimates
+
+|    | Estimate  |
+|:---|:---------:|
+|NIE | 0.2173661 |
+|NDE | 0.1202444 |
+|TE  | 0.3376104 |
+
+bootstrap_est_effects()
+----------------------------------------------------------
+               Bootstrap Summary Statistics
+----------------------------------------------------------
+
+Table: Bootstrap Summary Statistics
+
+|    | Effect |    Mean    |    SD     | Lower_95CI | Upper_95CI |
+|:---|:------:|:----------:|:---------:|:----------:|:----------:|
+|TE  |   TE   | 0.7890942  | 1.3970916 | -1.840702  |  3.387049  |
+|NIE |  NIE   | -0.1514042 | 0.7229927 | -1.465652  |  1.082800  |
+|NDE |  NDE   | 0.9404984  | 1.6913323 | -2.364615  |  3.984233  |
+|Y11 |  Y11   | 5.5248530  | 0.6630805 |  4.329847  |  6.902516  |
+|Y10 |  Y10   | 5.6762572  | 1.0505229 |  3.862940  |  7.820340  |
+|Y00 |  Y00   | 4.7357587  | 1.2804549 |  2.244986  |  6.964613  |
+
+plots_check(boot_results$boot_samples)
+```
+<img src="https://github.com/user-attachments/assets/72452237-7876-421a-a607-eac2e530b6ae" width="500">
+<img src="https://github.com/user-attachments/assets/d49901bf-f1cc-46d5-96b1-f8a4b4e107b3" width="500">
 
 # References
 Bo, S., Ghassami, A., & Mukherjee, D. (2024). "A Debiased Estimator for the Mediation Functional in Ultra-High-Dimensional Setting in the Presence of Interaction Effects."
