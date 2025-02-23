@@ -55,7 +55,7 @@ Here, $ X \in \mathbb{R}^{p} $ represents high-dimensional pre-treatment covaria
 
 This model accommodates **treatment-mediator interactions** ($\gamma_1 \neq \gamma_0$), meaning the effect of mediators on $ Y $ depends on treatment status, and **treatment-covariate interactions** ($\beta_1 \neq \beta_0$), allowing covariates to have different influences on the outcome under treatment and control. Such flexibility is essential for capturing heterogeneous treatment effects in high-dimensional settings.
 
-For detailed estimation procedure of mediation functional and effects, please see Section 3 and Appendix in [this paper](https://arxiv.org/pdf/2412.08827).
+For detailed estimation procedure of mediation functional and effects, please see Section 3 and Appendix in [](https://arxiv.org/pdf/2412.08827).
 
 
 ## Example Usage
