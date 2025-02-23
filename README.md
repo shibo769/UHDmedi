@@ -127,44 +127,53 @@ print(boot_plots$qqplot)
 ## Estimation Procedure
 
 ### Step 1:
-Split the data into two parts, say $\mathcal{D}_1$ and $\mathcal{D}_2$. Use $\mathcal{D}_1$ to run $q$ parallel regressions of $(\mathbf{M}_c)_{.,j}, j = 1, \ldots, q$ on $\mathbf{X}_c$, to obtain $\hat{\mathbf{B}}_{0_{1,.}}, \ldots, \hat{\mathbf{B}}_{0_{q,.}}$ where each $\hat{\mathbf{B}}_{0_{i,.}} \in \mathbb{R}^p$.  
-Concatenate them to obtain the following estimator for $\mathbf{B}_0$:
+Split the data into two parts, say **D₁** and **D₂**. Use **D₁** to run *q* parallel regressions of **(M_c)₍.,j₎**, where *j = 1, …, q*, on **X_c**, to obtain **B̂₀₍₁, .₎, …, B̂₀₍q, .₎**, where each **B̂₀₍i, .₎ ∈ ℝᵖ**.  
+
+Concatenate them to obtain the following estimator for **B₀**:
 
 $$
-\hat{\mathbf{B}}_0 = [\hat{\mathbf{B}}_{0_{1,.}} \quad \hat{\mathbf{B}}_{0_{2,.}} \quad \cdots \quad \hat{\mathbf{B}}_{0_{q,.}}]^\top.
+\hat{\mathbf{B}}_0 = \begin{bmatrix} 
+\hat{\mathbf{B}}_{0_{1,.}} & \hat{\mathbf{B}}_{0_{2,.}} & \cdots & \hat{\mathbf{B}}_{0_{q,.}}
+\end{bmatrix}^\top
 $$
 
-Use $\mathcal{D}_2$ to estimate $\phi_1 = [\beta_1^\top \quad \gamma_1^\top]^\top$ by regressing $Y_t$ on $\mathbf{W}_t=[\mathbf{X}_t \quad \mathbf{M}_t]$ along with an $\ell_1$ penalty:
+Use **D₂** to estimate **ϕ₁ = [β₁ᵀ  γ₁ᵀ]ᵀ** by regressing **Yₜ** on **Wₜ = [Xₜ  Mₜ]**, using **L₁**-penalized regression:
 
 $$
-\hat{\phi}_1 = [{\hat \beta}_1^\top \quad  {\hat \gamma}_1^\top]^\top = \arg\min_{\tilde \phi_1} \left\{ \sum_{\{i: A_i = 1\}} \left( Y_i - \mathbf{W}_{i,.} \cdot \tilde\phi_1 \right)^2 + \lambda_1 \|\tilde \phi_1\|_1 \right\}.
+\hat{\phi}_1 = \begin{bmatrix} \hat{\beta}_1^\top & \hat{\gamma}_1^\top \end{bmatrix}^\top = \arg\min_{\tilde{\phi}_1} \left\{ \sum_{\{i: A_i = 1\}} \left( Y_i - \mathbf{W}_{i,.} \cdot \tilde\phi_1 \right)^2 + \lambda_1 \|\tilde \phi_1\|_1 \right\}.
 $$
 
 ### Step 2:
-Compute bias correction weights $\tau_1$ with contrast $a = \left[ \bar{X}^\top \quad (\hat{\mathbf{B}}_0 \bar{X})^\top \right]^\top$ and tuning parameter $K_1$ using $\mathcal{D}_2$:
+Compute bias correction weights **τ₁** with contrast:
 
 $$
-\tau_1 =  \operatorname{argmin}_{\tilde{\tau}_1}\left\{ \left\lVert \tilde{\tau}_1 \right\rVert_2^2  \quad \text{subject to} \quad \left\lVert a - \mathbf{W}_t^\top \tilde{\tau}_1 \right\rVert_{\infty} \leqslant K_1   \sqrt{\frac{\log(p+q)}{n_t}}, \|\tilde \tau_{1}\|_\infty \leq n_t^{-2/3} \right\}.
+a = \begin{bmatrix} \bar{X}^\top & (\hat{\mathbf{B}}_0 \bar{X})^\top \end{bmatrix}^\top
+$$
+
+and tuning parameter **K₁** using **D₂**:
+
+$$
+\tau_1 = \operatorname{argmin}_{\tilde{\tau}_1} \left\{  \|\tilde{\tau}_1\|_2^2 \quad \text{ subject to } \quad \|\mathbf{a} - \mathbf{W}_t^\top \tilde{\tau}_1\|_\infty \leqslant K_1\sqrt{\frac{\log(p+q)}{n_t}}, \|\tilde \tau_{1}\|_\infty \leq n_t^{-2/3} \right\}.
 $$
 
 Set:
 
 $$
-\hat{\theta}_{0,1} = a^\top\hat{\phi}_1 + \sum_{\{i: A_i = 1\}} \tau_{1,i} \left( Y_i - \mathbf{W}_{i,.} \cdot \hat{\phi}_1 \right).
+\hat{\theta}_{0,1} = a^\top\hat{\phi}_1 + \sum_{\{i: A_i = 1\}} \tau_{1,i} \left( Y_i - \mathbf W_{i,.} \cdot \hat{\phi}_1 \right).
 $$
 
 ### Step 3:
-Estimate $b = \mathbf{B}_0^\top \hat{\gamma}_1$ by regressing $M_i^\top \hat{\gamma}_1$ on $X_i$ (with $A_i = 0$) along with an $\ell_1$ penalty using $\mathcal{D}_2$:
+Estimate **b = B₀ᵀ γ̂₁** by regressing **Mᵢᵀ γ̂₁** on **Xᵢ** (with **Aᵢ = 0**) along with an **L₁** penalty using **D₂**:
 
 $$
-\hat{b} = \arg\min_{\tilde b} \left\{ \sum_{\{i: A_i = 0\}} \left( M_i^\top \hat{\gamma}_1 - X_i^\top\tilde b \right)^2 + \lambda_2  \|\tilde b \|_1  \right\}.
+\hat{b} = \arg\min_{\tilde{b}} \left\{ \sum_{\{i: A_i = 0\}} \left( M_i^\top \hat{\gamma}_1 - X_i^\top\tilde{b} \right)^2 + \lambda_2  \|\tilde{b} \|_1  \right\}.
 $$
 
 ### Step 4:
-Compute bias correction weight $\tau_2$ with contrast $\bar{X}$ and tuning parameter $K_2$ using $\mathcal{D}_2$:
+Compute bias correction weight **τ₂** with contrast **X̄** and tuning parameter **K₂** using **D₂**:
 
 $$
-\tau_2 = \operatorname{argmin}_{\tilde{\tau}_2} \left\{  \|\tilde{\tau}_2\|_2^2 \quad \text{ subject to } \quad \|\bar{X} - \mathbf{X}_c^\top \tilde{\tau}_2\|_\infty \leqslant K_2\sqrt{\frac{\log(p)}{n_c}}, \|\tilde \tau_{2}\|_\infty \leq n_c^{-2/3}  \right\}.
+\tau_2 = \operatorname{argmin}_{\tilde{\tau}_2} \left\{  \|\tilde{\tau}_2\|_2^2 \quad \text{ subject to } \quad \|\bar X - \mathbf X_c^\top \tilde{\tau}_2\|_\infty \leqslant K_2\sqrt{\frac{\log(p)}{n_c}}, \|\tilde \tau_{2}\|_\infty \leq n_c^{-2/3}  \right\}.
 $$
 
 Set:
@@ -179,5 +188,3 @@ Return the final estimator:
 $$
 \hat{\theta}_0 = \hat{\theta}_{0,1} + \hat{\theta}_{0,2} - (\hat{\mathbf{B}}_0 \bar{X})^\top \hat{\gamma}_1.
 $$
-
-
