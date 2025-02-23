@@ -1,0 +1,16 @@
+\begin{table}[H]
+\centering
+\small 
+\begin{tabular}{|c|ccccc|}
+\hline
+$k=6$  & \multicolumn{5}{c|}{$\text{RMSE}$}                                                                                                                 \\ \hline
+$p+q$  & \multicolumn{1}{c|}{$\zeta = 0.3$} & \multicolumn{1}{c|}{$\zeta = 0.4$} & \multicolumn{1}{c|}{$\zeta = 0.5$} & \multicolumn{1}{c|}{$\zeta = 0.6$} & $\zeta = 0.7$ \\ \hline
+$200$  & \multicolumn{1}{c|}{0.1066}              & \multicolumn{1}{c|}{0.1068}              & \multicolumn{1}{c|}{0.1063}              & \multicolumn{1}{c|}{0.1089}              &               0.1126\\
+$400$  & \multicolumn{1}{c|}{0.1160}              & \multicolumn{1}{c|}{0.1125}              & \multicolumn{1}{c|}{0.1095}              & \multicolumn{1}{c|}{0.1144}              &               0.1096\\
+$800$  & \multicolumn{1}{c|}{0.1098}              & \multicolumn{1}{c|}{0.1178}              & \multicolumn{1}{c|}{0.1081}              & \multicolumn{1}{c|}{0.1175}              &               0.1096\\
+$1600$ & \multicolumn{1}{c|}{0.1156}              & \multicolumn{1}{c|}{0.1127}              & \multicolumn{1}{c|}{0.1122}              & \multicolumn{1}{c|}{0.1187}              &               0.1178\\
+$3200$ & \multicolumn{1}{c|}{0.1147}              & \multicolumn{1}{c|}{0.1101}              & \multicolumn{1}{c|}{0.1041}              & \multicolumn{1}{c|}{0.1186}              &               0.1108\\ \hline
+\end{tabular}
+\caption{Sensitivity Analysis of $\zeta$ in RMSE over 500 simulation replications ($n = 500$ and $\operatorname{Var}(\epsilon) = 0.1$).}
+\label{tab:sen1}
+\end{table}
