@@ -1,0 +1,27 @@
+Package: UHDmedi
+Type: Package
+Title: Estimation of Effects under Ultra-High Dimensional Mediators with Interaction Effects
+Version: 0.1.0
+Author: Shi Bo <shibo@bu.edu>, AmirEmad Ghassami <ghassami@bu.edu>, and Debarghya Mukherjee <mdeb@bu.edu>
+Maintainer: Shi Bo <shibo@bu.edu>
+Description: 
+  UHDmedi is an R package for estimating total, indirect, and direct effects under ultra-high dimensional mediators (UHD), 
+  including the ability to handle potential interaction effects. The package implements methods described in 
+  Reference: Bo, S., Ghassami, A., & Mukherjee, D. (2024). "A Debiased Estimator for the Mediation Functional in Ultra-High-Dimensional Setting in the Presence of Interaction Effects." <arXiv:2412.08827>.
+  The main functionalities include:
+    - simData(): Generates synthetic data for high-dimensional mediation analysis.
+    - real_data(): Loads real lung cancer data.
+    - eda_report(): Performs exploratory data analysis (EDA) such as missing value checks, summary statistics,
+      range and correlation analysis.
+    - est_effects(): Estimates total effect (TE), natural indirect effect (NIE), and natural direct effect (NDE)
+      using debiased approaches.
+    - bootstrap_est_effects(): Conducts non-parametric bootstrap to compute confidence intervals for effect estimates.
+    - plots_check(): Generates diagnostic plots (histograms, QQ plots) for bootstrap samples.
+  This package aims to provide a flexible and computationally feasible framework for mediation analysis in 
+  ultra-high dimensional settings with interaction effects, aligning with the methodology described in the referenced work.
+License: GPL-3
+Encoding: UTF-8
+URL: https://arxiv.org/pdf/2412.08827
+LazyData: true
+Imports: stats, utils
+RoxygenNote: 7.3.2
