@@ -124,57 +124,60 @@ print(boot_plots$histogram)
 print(boot_plots$qqplot)
 ```
 
-## Estimation Procedure (LaTeX)
+## Estimation Procedure
 
-Below is the high-level debiasing algorithm for mediation effect estimation as described in the preprint:
+### Step 1:
+Split the data into two parts, say $\mathcal{D}_1$ and $\mathcal{D}_2$. Use $\mathcal{D}_1$ to run $q$ parallel regressions of $(\mathbf{M}_c)_{.,j}, j = 1, \ldots, q$ on $\mathbf{X}_c$, to obtain $\hat{\mathbf{B}}_{0_{1,.}}, \ldots, \hat{\mathbf{B}}_{0_{q,.}}$ where each $\hat{\mathbf{B}}_{0_{i,.}} \in \mathbb{R}^p$.  
+Concatenate them to obtain the following estimator for $\mathbf{B}_0$:
 
-```latex
-\begin{algorithm}[H]
-\caption{Estimation procedure} 
-\begin{algorithmic}\small
-\State \textbf{Step 1:} 
-Split the data into two parts, say $\cD_1$ and $\cD_2$. Use $\cD_1$ to run $q$ parallel regressions of $(\mathbf M_c)_{.,j}, j = 1, \ldots, q$ on $\mathbf X_c$, to obtain $\hat \bB_{0_{1,.}}, \ldots, \hat \bB_{0_{q,.}}$ where each $\hat \bB_{0_{i,.}} \in \reals^p$. Concatenate them to obtain the following estimator for $\mathbf B_0$: 
-\[
-\hat{\mathbf B}_0 = [\hat \bB_{0_{1,.}} \quad \hat \bB_{0_{2,.}} \quad \cdots \quad \hat \bB_{0_{q,.}}]^\top.
-\]
-Use $\cD_2$ to estimate ${\phi}_1 = [{\beta}_1^\top \quad {\gamma}_1^\top]^\top$ by regressing $Y_t$ on $\mathbf W_t=[\mathbf X_t \quad \mathbf M_t]$ with an $\ell_1$ penalty:
-\[
-\hat{\phi}_1 = [{\hat \beta}_1^\top \quad  {\hat \gamma}_1^\top]^\top = \arg\min_{\tilde \phi_1} \left\{ \sum_{\{i: A_i = 1\}} \left( Y_i - \mathbf W_{i,.} \cdot \tilde\phi_1 \right)^2 + \lambda_1 \|\tilde \phi_1\|_1 \right\}.
-\]
-\State \textbf{Step 2:} Compute bias correction weights $\tau_1$ with contrast 
-\[
-a = \left[ \bar X^\top \quad (\hat{\mathbf B}_0 \bar{X})^\top \right]^\top,
-\]
-and tuning parameter $K_1$ using $\cD_2$:
-\begin{equation}
-        \tau_1 =  \operatorname{argmin}_{\tilde{\tau}_1}\left\{ \|\tilde{\tau}_1\|_2^2  \quad \text{subject to} \quad \|a - \mathbf{W}_t^\top \tilde{\tau}_1\|_{\infty} \leq K_1 \sqrt{\frac{\log(p+q)}{n_t}}, \|\tilde \tau_{1}\|_\infty \leq n_t^{-2/3} \right\}.
-\end{equation}
-Set 
-\[
-\hat{\theta}_{0,1} = a^\top\hat{\phi}_1 + \sum_{\{i: A_i = 1\}} \tau_{1,i} \left( Y_i - \mathbf W_{i,.} \cdot \hat{\phi}_1 \right).
-\]
-\State \textbf{Step 3:} Estimate 
-\[
-b = \bB_0^\top \hat \gamma_1
-\]
-by regressing $M_i^\top \hat{\gamma}_1$ on $X_i$ (with $A_i = 0$) with an $\ell_1$ penalty using $\cD_2$:
-\[
-\hat{b} = \arg\min_{\tilde b} \left\{ \sum_{\{i: A_i = 0\}} \left( M_i^\top \hat{\gamma}_1 - X_i^\top\tilde b \right)^2 + \lambda_2  \|\tilde b \|_1 \right\}.
-\]
-\State \textbf{Step 4:} Compute bias correction weight $\tau_2$ with contrast $\bar{X}$ and tuning parameter $K_2$ using $\cD_2$:
-\begin{equation}
-        \tau_2 = \operatorname{argmin}_{\tilde{\tau}_2} \left\{  \|\tilde{\tau}_2\|_2^2 \quad \text{ subject to } \quad \|\bar X - \mathbf X_c^\top \tilde{\tau}_2\|_\infty \leq K_2\sqrt{\frac{\log(p)}{n_c}}, \|\tilde \tau_{2}\|_\infty \leq n_c^{-2/3}  \right\}.
-\end{equation}
-Set 
-\[
+$$
+\hat{\mathbf{B}}_0 = [\hat{\mathbf{B}}_{0_{1,.}} \quad \hat{\mathbf{B}}_{0_{2,.}} \quad \cdots \quad \hat{\mathbf{B}}_{0_{q,.}}]^\top.
+$$
+
+Use $\mathcal{D}_2$ to estimate $\phi_1 = [\beta_1^\top \quad \gamma_1^\top]^\top$ by regressing $Y_t$ on $\mathbf{W}_t=[\mathbf{X}_t \quad \mathbf{M}_t]$ along with an $\ell_1$ penalty:
+
+$$
+\hat{\phi}_1 = [{\hat \beta}_1^\top \quad  {\hat \gamma}_1^\top]^\top = \arg\min_{\tilde \phi_1} \left\{ \sum_{\{i: A_i = 1\}} \left( Y_i - \mathbf{W}_{i,.} \cdot \tilde\phi_1 \right)^2 + \lambda_1 \|\tilde \phi_1\|_1 \right\}.
+$$
+
+### Step 2:
+Compute bias correction weights $\tau_1$ with contrast $a = \left[ \bar{X}^\top \quad (\hat{\mathbf{B}}_0 \bar{X})^\top \right]^\top$ and tuning parameter $K_1$ using $\mathcal{D}_2$:
+
+$$
+\tau_1 =  \operatorname{argmin}_{\tilde{\tau}_1}\left\{ \left\lVert \tilde{\tau}_1 \right\rVert_2^2  \quad \text{subject to} \quad \left\lVert a - \mathbf{W}_t^\top \tilde{\tau}_1 \right\rVert_{\infty} \leqslant K_1   \sqrt{\frac{\log(p+q)}{n_t}}, \|\tilde \tau_{1}\|_\infty \leq n_t^{-2/3} \right\}.
+$$
+
+Set:
+
+$$
+\hat{\theta}_{0,1} = a^\top\hat{\phi}_1 + \sum_{\{i: A_i = 1\}} \tau_{1,i} \left( Y_i - \mathbf{W}_{i,.} \cdot \hat{\phi}_1 \right).
+$$
+
+### Step 3:
+Estimate $b = \mathbf{B}_0^\top \hat{\gamma}_1$ by regressing $M_i^\top \hat{\gamma}_1$ on $X_i$ (with $A_i = 0$) along with an $\ell_1$ penalty using $\mathcal{D}_2$:
+
+$$
+\hat{b} = \arg\min_{\tilde b} \left\{ \sum_{\{i: A_i = 0\}} \left( M_i^\top \hat{\gamma}_1 - X_i^\top\tilde b \right)^2 + \lambda_2  \|\tilde b \|_1  \right\}.
+$$
+
+### Step 4:
+Compute bias correction weight $\tau_2$ with contrast $\bar{X}$ and tuning parameter $K_2$ using $\mathcal{D}_2$:
+
+$$
+\tau_2 = \operatorname{argmin}_{\tilde{\tau}_2} \left\{  \|\tilde{\tau}_2\|_2^2 \quad \text{ subject to } \quad \|\bar{X} - \mathbf{X}_c^\top \tilde{\tau}_2\|_\infty \leqslant K_2\sqrt{\frac{\log(p)}{n_c}}, \|\tilde \tau_{2}\|_\infty \leq n_c^{-2/3}  \right\}.
+$$
+
+Set:
+
+$$
 \hat{\theta}_{0,2} = \bar{X}^\top\hat{b} + \sum_{\{i: A_i = 0\}} \tau_{2,i} \left( M_i^\top \hat{\gamma}_1 - X_i^\top \hat{b} \right).
-\]
-\State \textbf{Step 5:} Return the final estimator 
-\[
-\hat{\theta}_0 = \hat{\theta}_{0,1} + \hat{\theta}_{0,2} - (\hat{\mathbf B}_0 \bar{X})^\top \hat{\gamma}_1.
-\]
-\end{algorithmic}
-\label{algomain}
-\end{algorithm}
-```
+$$
+
+### Step 5:
+Return the final estimator:
+
+$$
+\hat{\theta}_0 = \hat{\theta}_{0,1} + \hat{\theta}_{0,2} - (\hat{\mathbf{B}}_0 \bar{X})^\top \hat{\gamma}_1.
+$$
+
 
