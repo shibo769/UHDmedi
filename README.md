@@ -2,8 +2,7 @@
 
 **UHDmedi** is an R package for estimating total, indirect, and direct effects under ultra-high dimensional mediators (UHD), including potential interaction effects. This package implements methods described in the preprint:
 
-- **Ultra-High Dimensional Mediation Analysis**  
-  [arXiv:2412.08827](https://arxiv.org/pdf/2412.08827)
+Bo, S., Ghassami, A., & Mukherjee, D. (2024). "A Debiased Estimator for the Mediation Functional in Ultra-High-Dimensional Setting in the Presence of Interaction Effects." <arXiv:2412.08827>.
 
 The package provides the following key functionalities:
 - **simData()**: Generates synthetic data for high-dimensional mediation analysis.
