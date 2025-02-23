@@ -48,6 +48,7 @@ We consider a causal mediation model where the treatment $ A \in \{0,1\} $ affec
 
 
 $$Y =  (1-A)\left(\alpha_{0}+X^{\top} \beta_{0}+M^{\top} \gamma_{0}\right)+A\left(\alpha_{1}+X^{\top} \beta_{1}+M^{\top} \gamma_{1}\right)+\epsilon$$
+
 $$M = (1-A)\left(\delta_{0}+\mathbf{B}_{0} X\right)+A\left(\delta_{1}+\mathbf{B}_{1} X\right)+  U$$
 
 
