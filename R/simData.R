@@ -131,8 +131,8 @@ simData <- function(nn = 100, p = 200, q = 200, variance = 1, k1 = 3, k2 = 3, s_
   M1 <- X[treat_index, , drop = FALSE] %*% t(B1) + noise_M1
   
   # --- Transform mediators to be between 0 and 1 using logistic transformation ---
-  M0 <- plogis(M0)
-  M1 <- plogis(M1)
+  # M0 <- plogis(M0)
+  # M1 <- plogis(M1)
   
   # -------------------------
   # Generate outcome variables for control and treatment groups
