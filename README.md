@@ -278,6 +278,6 @@ plots_check(boot_results$boot_samples)
 <img src="https://github.com/user-attachments/assets/d49901bf-f1cc-46d5-96b1-f8a4b4e107b3" width="500">
 
 # References
-Bo, S., Ghassami, A., & Mukherjee, D. (2024). "A Debiased Estimator for the Mediation Functional in Ultra-High-Dimensional Setting in the Presence of Interaction Effects."
+Bo, S., Ghassami, A., & Mukherjee, D. (2024). "A Debiased Estimator for the Mediation Functional in Ultra-High-Dimensional Setting in the Presence of Interaction Effects." [arXiv:2412.08827](https://arxiv.org/abs/2412.08827)
 
 Athey, S., Imbens, G. W., & Wager, S. (2018). Approximate residual balancing: debiased inference of average treatment effects in high dimensions. Journal of the Royal Statistical Society Series B: Statistical Methodology, 80(4), 597-623.
