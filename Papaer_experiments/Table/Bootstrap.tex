@@ -1,13 +1,39 @@
 \begin{table}[H]
 \centering
 \small 
-\begin{tabular}{ccc}
+\begin{tabular}{cccc}
 \hline
-\multicolumn{1}{c|}{}                & \multicolumn{1}{c|}{Mean} &Quantile CI\\ \hline
-\multicolumn{1}{c|}{Indirect Effect} & \multicolumn{1}{c|}{-0.1162}     &(-0.1805, -0.0794)\\ \hline
-\multicolumn{1}{c|}{Direct Effect} & \multicolumn{1}{c|}{-0.0644}     &(-0.0991, -0.0154)\\ \hline
-\multicolumn{1}{c|}{Total Effect} & \multicolumn{1}{c|}{-0.1805}     &(-0.192, -0.1661)\\ \hline
+\multicolumn{1}{c}{}                & \multicolumn{1}{c}{Estimate} & Bootstrap Mean&Quantile CI (95\%)\\ \hline
+\multicolumn{1}{c}{Indirect Effect} & \multicolumn{1}{c}{-0.2486
+}     & -0.3319&(-0.7266, -0.0042) 
+\\ \hline
+\multicolumn{1}{c}{Direct Effect} & \multicolumn{1}{c}{-0.1022
+}     & -0.0730&(-0.5840, 0.2796) 
+\\ \hline
+\multicolumn{1}{c}{Total Effect} & \multicolumn{1}{c}{-0.3508}     & -0.4049&(-0.8297, -0.0254) \\ \hline
 \end{tabular}
-\caption{Summary of the effects with mean and confidence interval (CI) under 600 samples bootstrap.} 
+\caption{Summary of the effects with mean and confidence interval (CI) under 300-sample bootstrap.} 
 \label{tab:results1}
+\end{table}
+
+
+
+\begin{table}[H]
+\centering
+\small 
+\begin{tabular}{cccc}
+\hline
+\multicolumn{1}{c}{}                & \multicolumn{1}{c}{Estimate} & Bootstrap Mean&Quantile CI (95\%)\\ \hline
+\multicolumn{1}{c}{Indirect Effect} & \multicolumn{1}{c}{0.2600
+}     & 0.2531
+&(0.1279, 0.3752) 
+\\ \hline
+\multicolumn{1}{c}{Direct Effect} & \multicolumn{1}{c}{-0.0223
+}     & -0.0178
+&(-0.2496, 0.1688) 
+\\ \hline
+\multicolumn{1}{c}{Total Effect} & \multicolumn{1}{c}{0.2378}     & 0.2353&(-0.0079, 0.4346) \\ \hline
+\end{tabular}
+\caption{Summary of the effects in OLS (gene sites from other papers) with mean and confidence interval (CI) under 300-sample bootstrap.} 
+\label{tab:results2}
 \end{table}
