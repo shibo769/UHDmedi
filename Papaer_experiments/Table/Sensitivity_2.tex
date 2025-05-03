@@ -1,16 +1,22 @@
+
 \begin{table}[H]
-\centering
-\small 
-\begin{tabular}{|c|ccccc|}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|c|ccccccccc|}
 \hline
-$k=6$  & \multicolumn{5}{c|}{$\text{RMSE}$}                                                                                                                 \\ \hline
-$p+q$  & \multicolumn{1}{c|}{$\zeta = 0.3$} & \multicolumn{1}{c|}{$\zeta = 0.4$} & \multicolumn{1}{c|}{$\zeta = 0.5$} & \multicolumn{1}{c|}{$\zeta = 0.6$} & $\zeta = 0.7$ \\ \hline
-$200$  & \multicolumn{1}{c|}{0.0744}              & \multicolumn{1}{c|}{0.0786}              & \multicolumn{1}{c|}{0.0760}              & \multicolumn{1}{c|}{0.0749}              &               0.0783\\
-$400$  & \multicolumn{1}{c|}{0.0767}              & \multicolumn{1}{c|}{0.0786}              & \multicolumn{1}{c|}{0.0728}              & \multicolumn{1}{c|}{0.0741}              &               0.0799\\
-$800$  & \multicolumn{1}{c|}{0.0859}              & \multicolumn{1}{c|}{0.0826}              & \multicolumn{1}{c|}{0.0816}              & \multicolumn{1}{c|}{0.0826}              &               0.0817\\
-$1600$ & \multicolumn{1}{c|}{0.0823}              & \multicolumn{1}{c|}{0.0806}              & \multicolumn{1}{c|}{0.0787}              & \multicolumn{1}{c|}{0.0791}              &               0.0786\\
-$3200$ & \multicolumn{1}{c|}{0.0791}              & \multicolumn{1}{c|}{0.0796}              & \multicolumn{1}{c|}{0.0796}              & \multicolumn{1}{c|}{0.0777}              &               0.0766\\ \hline
-\end{tabular}
-\caption{Sensitivity Analysis of $\zeta$ in RMSE over 500 simulation replications ($n = 1000$ and $\operatorname{Var}(\epsilon) = 0.1$).}
-\label{tab:sen2}
+$n = 1250$& \multicolumn{9}{c|}{$\text{RMSE}$}                                                                                   \\ \hline
+$p + q = 1500$& $K_1= 1$ & $K_1 = 1.25$ & $K_1 = 1.5$ & $K_1 = 1.75$ & $K_1 = 2$ & $K_1 = 2.25$ & $K_1 = 2.5$ & $K_1 = 2.75$& $K_1 = 3$\\ \hline
+$K_2 = 1$      &          0.3957        &              0.3815        &             0.3929        &              0.3679        &           0.3919        &              0.3852        &             0.3849        &            0.3729        &         0.3640        \\
+$K_2 = 1.25$   &          0.3985        &              0.3867        &             0.3653        &              0.3953        &           0.3941        &              0.3833        &             0.3708        &            0.3959        &         0.3891        \\
+$K_2 = 1.5$    &          0.3170        &              0.3288        &             0.3065        &              0.3241        &           0.3020        &              0.3144        &             0.3082        &            0.3058        &         0.3242        \\
+$K_2 = 1.75$   &          0.2368        &              0.2272        &             0.2410        &              0.2315        &           0.2283        &              0.2500        &             0.2293        &            0.2439        &         0.2417        \\
+$K_2 = 2$      &          0.2094        &              0.2084        &             0.2055        &              0.2101        &           0.2214        &              0.2297        &             0.2250        &            0.2266        &         0.2266        \\
+$K_2 = 2.25$   &          0.1983        &              0.1935        &             0.2018&              0.2063        &           0.1989&              0.2120        &             0.1954        &            0.1888        &         0.2103        \\
+$K_2 = 2.5$    &          0.1862        &              0.1818        &             0.1852        &              0.2027        &           0.1951        &              0.1975        &             0.1988        &            0.2154        &         0.2017        \\
+$K_2 = 2.75$   &          0.1848        &              0.1768        &             0.1884        &              0.1955        &           0.1808        &              0.1878        &             0.1832&            \textbf{0.1722}&         0.1808        \\
+$K_2 = 3$      &          \textbf{0.1697}&              0.1700        &             \textbf{0.1690}&              0.1762        &           0.1762        &              \textbf{0.1713}&             0.1833        &            0.1843        &         \textbf{0.1722}\\ \hline
+\end{tabular}%
+}
+\caption{Sensitivity Analysis of different $(K_1, K_2)$ in RMSE over 400 simulation replications $n = 1250$, $p+q = 1500$ and $\sigma^2 = 0.5$ (The five lowest RMSE have been boldfaced).}
+\label{tab:sen4}
 \end{table}
+
