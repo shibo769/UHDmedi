@@ -1,16 +1,54 @@
+
 \begin{table}[H]
 \centering
 \small 
-\begin{tabular}{|c|ccccc|}
+\resizebox{\columnwidth}{!}{\begin{tabular}{|c|ccccc|llll}
 \hline
-$k=6$  & \multicolumn{5}{c|}{$\text{RMSE}$}                                                                                                                 \\ \hline
-$p+q$  & \multicolumn{1}{c|}{$\zeta = 0.3$} & \multicolumn{1}{c|}{$\zeta = 0.4$} & \multicolumn{1}{c|}{$\zeta = 0.5$} & \multicolumn{1}{c|}{$\zeta = 0.6$} & $\zeta = 0.7$ \\ \hline
-$200$  & \multicolumn{1}{c|}{0.1066}              & \multicolumn{1}{c|}{0.1068}              & \multicolumn{1}{c|}{0.1063}              & \multicolumn{1}{c|}{0.1089}              &               0.1126\\
-$400$  & \multicolumn{1}{c|}{0.1160}              & \multicolumn{1}{c|}{0.1125}              & \multicolumn{1}{c|}{0.1095}              & \multicolumn{1}{c|}{0.1144}              &               0.1096\\
-$800$  & \multicolumn{1}{c|}{0.1098}              & \multicolumn{1}{c|}{0.1178}              & \multicolumn{1}{c|}{0.1081}              & \multicolumn{1}{c|}{0.1175}              &               0.1096\\
-$1600$ & \multicolumn{1}{c|}{0.1156}              & \multicolumn{1}{c|}{0.1127}              & \multicolumn{1}{c|}{0.1122}              & \multicolumn{1}{c|}{0.1187}              &               0.1178\\
-$3200$ & \multicolumn{1}{c|}{0.1147}              & \multicolumn{1}{c|}{0.1101}              & \multicolumn{1}{c|}{0.1041}              & \multicolumn{1}{c|}{0.1186}              &               0.1108\\ \hline
+$k_1 = k_2 = 5$& \multicolumn{9}{c|}{$\text{RMSE}$}\\ \hline
+$p+q$  & \multicolumn{1}{c|}{$K = 1$} & \multicolumn{1}{c|}{$K = 1.25$} & \multicolumn{1}{c|}{$K = 1.5$} & \multicolumn{1}{c|}{$K = 1.75$} & \multicolumn{1}{c|}{$K = 2$}& \multicolumn{1}{c|}{$K = 2.25$}& \multicolumn{1}{c|}{$K = 2.5$}& \multicolumn{1}{c|}{$K = 2.75$}& \multicolumn{1}{c|}{$K = 3$}\\ \hline
+$100$& \multicolumn{1}{c|}{0.2754        }              & \multicolumn{1}{c|}{0.2606        }              & \multicolumn{1}{c|}{0.2782        }              & \multicolumn{1}{c|}{0.2631        }              & \multicolumn{1}{c|}{0.2269        }                & \multicolumn{1}{c|}{0.2255        } & \multicolumn{1}{c|}{\textbf{0.2230}} & \multicolumn{1}{c|}{\textbf{0.2065}} & \multicolumn{1}{c|}{\textbf{0.2143}} \\
+$800$  
+& \multicolumn{1}{c|}{0.1779        }              & \multicolumn{1}{c|}{0.1534        }              & \multicolumn{1}{c|}{0.1464        }              & \multicolumn{1}{c|}{0.1427        }              & \multicolumn{1}{c|}{0.1330        }                & \multicolumn{1}{c|}{\textbf{0.1237}} & \multicolumn{1}{c|}{0.1261        } & \multicolumn{1}{c|}{\textbf{0.1167}} & \multicolumn{1}{c|}{\textbf{0.1224}} \\
+$1500$
+& \multicolumn{1}{c|}{0.2747        }              & \multicolumn{1}{c|}{0.2600        }              & \multicolumn{1}{c|}{0.2731        }              & \multicolumn{1}{c|}{0.2546        }              & \multicolumn{1}{c|}{0.2531        }                & \multicolumn{1}{c|}{0.1978        } & \multicolumn{1}{c|}{\textbf{0.1976}} & \multicolumn{1}{c|}{\textbf{0.1660}} & \multicolumn{1}{c|}{\textbf{0.1763}} \\
+$2500$& \multicolumn{1}{c|}{0.1425}              & \multicolumn{1}{c|}{0.1385        }              & \multicolumn{1}{c|}{0.1214        }              & \multicolumn{1}{c|}{0.1123        }              & \multicolumn{1}{c|}{0.1117        }                & \multicolumn{1}{c|}{\textbf{0.1101}} & \multicolumn{1}{c|}{\textbf{0.1102}} & \multicolumn{1}{c|}{\textbf{0.1062}} & \multicolumn{1}{c|}{0.1153    } \\ \hline
 \end{tabular}
-\caption{Sensitivity Analysis of $\zeta$ in RMSE over 500 simulation replications ($n = 500$ and $\operatorname{Var}(\epsilon) = 0.1$).}
+}
+\caption{Sensitivity Analysis of $(K_1, K_2)$ in RMSE over 400 simulation replications $n = 1250$ and $\sigma^2 = 0.5$ (The three lowest RMSE in each row have been boldfaced).}
 \label{tab:sen1}
 \end{table}
+
+\begin{table}[H]
+\centering
+\small 
+\resizebox{\columnwidth}{!}{\begin{tabular}{|c|ccccc|llll}
+\hline
+$k_1 = k_2 = 5$& \multicolumn{9}{c|}{$\text{RMSE}$}\\ \hline
+$p+q$  & \multicolumn{1}{c|}{$K = 1$} & \multicolumn{1}{c|}{$K = 1.25$} & \multicolumn{1}{c|}{$K = 1.5$} & \multicolumn{1}{c|}{$K = 1.75$} & \multicolumn{1}{c|}{$K = 2$}& \multicolumn{1}{c|}{$K = 2.25$}& \multicolumn{1}{c|}{$K = 2.5$}& \multicolumn{1}{c|}{$K = 2.75$}& \multicolumn{1}{c|}{$K = 3$}\\ \hline
+$100$& \multicolumn{1}{c|}{0.1340        }              & \multicolumn{1}{c|}{0.1288        }              & \multicolumn{1}{c|}{0.1200        }              & \multicolumn{1}{c|}{0.1153        }              & \multicolumn{1}{c|}{0.1119}                & \multicolumn{1}{c|}{\textbf{0.1074}} & \multicolumn{1}{c|}{\textbf{0.1085}} & \multicolumn{1}{c|}{\textbf{0.1115}} & \multicolumn{1}{c|}{0.1122        } \\
+$800$  & \multicolumn{1}{c|}{0.1784        }              & \multicolumn{1}{c|}{0.1500        }              & \multicolumn{1}{c|}{0.1441        }              & \multicolumn{1}{c|}{0.1380        }              & \multicolumn{1}{c|}{0.1283        }                & \multicolumn{1}{c|}{0.1319        } & \multicolumn{1}{c|}{\textbf{0.1270}} & \multicolumn{1}{c|}{\textbf{0.1279}} & \multicolumn{1}{c|}{\textbf{0.1281}} \\
+$1500$& \multicolumn{1}{c|}{0.2203        }              & \multicolumn{1}{c|}{0.2041        }              & \multicolumn{1}{c|}{0.1747        }              & \multicolumn{1}{c|}{0.1696        }              & \multicolumn{1}{c|}{0.1498        }                & \multicolumn{1}{c|}{0.1575        } & \multicolumn{1}{c|}{\textbf{0.1472}} & \multicolumn{1}{c|}{\textbf{0.1460}} & \multicolumn{1}{c|}{\textbf{0.1465}} \\
+$2500$& \multicolumn{1}{c|}{0.2752}              & \multicolumn{1}{c|}{0.2664}              & \multicolumn{1}{c|}{0.2812}              & \multicolumn{1}{c|}{0.2796}              & \multicolumn{1}{c|}{0.3054}                & \multicolumn{1}{c|}{\textbf{0.2274}} & \multicolumn{1}{c|}{\textbf{0.2570}} & \multicolumn{1}{c|}{\textbf{0.2344}} & \multicolumn{1}{c|}{0.2646} \\ \hline
+\end{tabular}
+}
+\caption{Sensitivity Analysis of $(K_1, K_2)$ in RMSE over 400 simulation replications $n = 1000$ and $\sigma^2 = 0.5$ (The three lowest RMSE in each row have been boldfaced).}
+\label{tab:sen2}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small 
+\resizebox{\columnwidth}{!}{\begin{tabular}{|c|ccccc|llll}
+\hline
+$k_1 = k_2 = 5$& \multicolumn{9}{c|}{$\text{RMSE}$}\\ \hline
+$p+q$  & \multicolumn{1}{c|}{$K = 1$} & \multicolumn{1}{c|}{$K = 1.25$} & \multicolumn{1}{c|}{$K = 1.5$} & \multicolumn{1}{c|}{$K = 1.75$} & \multicolumn{1}{c|}{$K = 2$}& \multicolumn{1}{c|}{$K = 2.25$}& \multicolumn{1}{c|}{$K = 2.5$}& \multicolumn{1}{c|}{$K = 2.75$}& \multicolumn{1}{c|}{$K = 3$}\\ \hline
+$100$& \multicolumn{1}{c|}{0.2644        }              & \multicolumn{1}{c|}{0.2442        }              & \multicolumn{1}{c|}{0.2121        }              & \multicolumn{1}{c|}{0.2035        }              & \multicolumn{1}{c|}{0.1910        }                & \multicolumn{1}{c|}{0.1936        } & \multicolumn{1}{c|}{\textbf{0.1822}} & \multicolumn{1}{c|}{\textbf{0.1773}} & \multicolumn{1}{c|}{\textbf{0.1535}} \\
+$800$  & \multicolumn{1}{c|}{0.3308        }              & \multicolumn{1}{c|}{0.3157        }              & \multicolumn{1}{c|}{0.2811        }              & \multicolumn{1}{c|}{\textbf{0.2511}}              & \multicolumn{1}{c|}{\textbf{0.2573}}                & \multicolumn{1}{c|}{0.2915        } & \multicolumn{1}{c|}{0.2925        } & \multicolumn{1}{c|}{\textbf{0.2795}} & \multicolumn{1}{c|}{0.2953        } \\
+$1500$& \multicolumn{1}{c|}{0.4311        }              & \multicolumn{1}{c|}{0.3213        }              & \multicolumn{1}{c|}{0.2375        }              & \multicolumn{1}{c|}{0.2048        }              & \multicolumn{1}{c|}{0.2004        }                & \multicolumn{1}{c|}{\textbf{0.1672}} & \multicolumn{1}{c|}{0.1827        } & \multicolumn{1}{c|}{\textbf{0.1719}} & \multicolumn{1}{c|}{\textbf{0.1722}} \\
+$2500$& \multicolumn{1}{c|}{0.2312        }              & \multicolumn{1}{c|}{\textbf{0.2147}}              & \multicolumn{1}{c|}{\textbf{0.2171}}              & \multicolumn{1}{c|}{\textbf{0.2279}}              & \multicolumn{1}{c|}{0.3119        }                & \multicolumn{1}{c|}{0.3282        } & \multicolumn{1}{c|}{0.3135        } & \multicolumn{1}{c|}{0.2499        } & \multicolumn{1}{c|}{0.2754        } \\ \hline
+\end{tabular}
+}
+\caption{Sensitivity Analysis of $(K_1, K_2)$ in RMSE over 400 simulation replications $n = 750$ and $\sigma^2 = 0.5$ (The three lowest RMSE in each row have been boldfaced).}
+\label{tab:sen3}
+\end{table}
+
