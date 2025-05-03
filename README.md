@@ -43,7 +43,7 @@ This package works with two optimizers:
 
 We recommend trying **pogs** first for optimal performance.
 
-To run the debiasing in the estimation procedure, we are very grateful to [Swager](https://github.com/swager) for providing the `balancHD` package. For details and installation instructions, please visit [https://github.com/swager/balanceHD](https://github.com/swager/balanceHD).
+To run the debiasing in the estimation procedure, we are very grateful to [Swager](https://github.com/swager) for providing the functions in `balancHD` package. For details about their codes, please visit [https://github.com/swager/balanceHD](https://github.com/swager/balanceHD).
 
 ## Overview
 We consider a causal mediation model where the treatment $ A \in \{0,1\} $ affects the outcome $ Y $ both directly and indirectly through a set of mediators $ \mathbf{M} \in \mathbb{R}^{q} $. The system is defined as:
