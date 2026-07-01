@@ -1,0 +1,420 @@
+---
+title: "RealDataNoBoot"
+author: "Shi Bo"
+date: "2025-01-25"
+output: pdf_document
+---
+
+### Packages ###
+```{r}
+# detach("package:ranger", unload=TRUE)
+# install.packages("Matrix")
+library(data.table)
+library(glmnet)
+library(balanceHD)
+library(caret)
+library(glmnet)
+library(foreach)
+library(doParallel)
+library(balanceHD)
+library(boot)
+library(pogs)
+source("/usr3/graduate/shibo/UHDmediation/utilis.R")
+```
+
+### Read Files ###
+```{r}
+A_Smoking <- readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/A_Smoking.rds") 
+X_PhenotypeSurvival <- data.matrix(readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/X_fourthorder_MICE.rds"))
+Y_SurvivalTime <- readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/Y_SurvivalTime.rds")
+M_raw_cleaned <- readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/M_raw_cleaned.rds")
+criteria = apply(M_raw_cleaned, 2, sd) > 0.1
+M_sd0.1 <- M_raw_cleaned[, criteria]
+gene_sites_M_raw_cleaned <- readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/gene_sites_for_M_raw_cleaned.rds")
+gene_sites_M_sd0.1 <- gene_sites_M_raw_cleaned[criteria]
+
+nn = length(A_Smoking)
+cat("Number of missing values M:", sum(is.na(M_raw_cleaned)),"\n")
+cat("Number of missing values X:", sum(is.na(M_raw_cleaned)),"\n")
+cat("Dim X:", dim(X_PhenotypeSurvival),"\n")
+cat("Dim M:", dim(M_sd0.1),"\n")
+```
+
+```{r}
+########################### Parameters ###########################
+# Register parallel backend
+# num_cores <- detectCores() - 1  # Use available cores minus 1 to avoid freezing the system
+n_cores <- parallel::detectCores() - 1
+cl <- makeCluster(n_cores)
+registerDoParallel(cores = cl)
+
+optimizer = "pogs.new"
+K1 = 2.75
+K2 = 2.75
+zeta = 0.5
+b = 300
+num_folds = 3
+res = matrix(0, ncol = 3, nrow = b)
+lam = "lambda.min"
+```
+
+
+### parallel computing version
+
+
+```{r}
+# ===========================
+# Parallel bootstrap loop
+# ===========================
+
+res_list <- foreach(i = 1:b,
+                    .combine = rbind,
+                    .packages = c("glmnet", "balanceHD"),
+                    .export = c("X_PhenotypeSurvival",
+                                "M_sd0.1",
+                                "A_Smoking",
+                                "Y_SurvivalTime",
+                                "num_folds",
+                                "lam",
+                                "zeta",
+                                "K1",
+                                "K2",
+                                "optimizer",
+                                "nn")) %dopar% {
+
+  start_time <- Sys.time() 
+  
+  sample_indices <- sample(1:nn, size = nn, replace = TRUE)
+  X <- X_PhenotypeSurvival[sample_indices,]
+  M <- M_sd0.1[sample_indices,]
+  
+  A <- A_Smoking[sample_indices]
+  Y <- log(Y_SurvivalTime[sample_indices])
+  
+  treat_index   <- which(A == 1)
+  control_index <- which(A == 0) 
+  
+  Xt <- data.matrix(X[treat_index, ])
+  Xc <- data.matrix(X[control_index, ])
+  M1 <- M[treat_index, ]
+  M0 <- M[control_index, ]
+  Yt <- Y[treat_index]
+  Yc <- Y[control_index]
+  
+    ########################### Cross-Fitting Version ###########################
+  X_bar <- colMeans(data.matrix(X))
+  
+  p <- dim(X)[2]
+  q <- dim(M)[2]
+  n_boot <- nrow(X)
+  
+  # Use stratified two-fold split by treatment status
+  # This keeps both treated and control observations in each fold.
+  treat_perm <- sample(treat_index, length(treat_index), replace = FALSE)
+  control_perm <- sample(control_index, length(control_index), replace = FALSE)
+  
+  D1 <- c(
+    treat_perm[seq_len(floor(length(treat_perm) / 2))],
+    control_perm[seq_len(floor(length(control_perm) / 2))]
+  )
+  D2 <- setdiff(seq_len(n_boot), D1)
+  
+  cv_nfolds <- function(n_obs) {
+    if (n_obs < 3) {
+      stop("Too few observations in one cross-fitting fold for cv.glmnet.")
+    }
+    min(num_folds, n_obs)
+  }
+  
+  fit_gamma_lasso <- function(X_sub, M_sub, Y_sub) {
+    X_sub <- data.matrix(X_sub)
+    M_sub <- data.matrix(M_sub)
+    Y_sub <- as.vector(Y_sub)
+    
+    W_sub <- data.matrix(cbind(X_sub, M_sub))
+    
+    fit_cv <- cv.glmnet(
+      W_sub,
+      Y_sub,
+      nfolds = cv_nfolds(length(Y_sub)),
+      intercept = FALSE,
+      alpha = 1
+    )
+    
+    phi_hat <- as.vector(coef(fit_cv, s = lam))[-1]
+    gamma_hat <- phi_hat[(p + 1):(p + q)]
+    
+    return(gamma_hat)
+  }
+  
+  fit_B_lasso <- function(X_sub, M_sub) {
+    X_sub <- data.matrix(X_sub)
+    M_sub <- data.matrix(M_sub)
+    
+    B_hat <- matrix(0, nrow = ncol(M_sub), ncol = ncol(X_sub))
+    
+    for (jj in 1:ncol(M_sub)) {
+      Mi <- M_sub[, jj]
+      
+      cv_model <- cv.glmnet(
+        X_sub,
+        Mi,
+        alpha = 1,
+        intercept = FALSE,
+        nfolds = cv_nfolds(nrow(X_sub))
+      )
+      
+      B_hat[jj, ] <- as.vector(coef(cv_model, s = lam))[-1]
+    }
+    
+    return(B_hat)
+  }
+  
+  rb_mean <- function(design_mat, response_vec, target_vec, K_value) {
+    output <- residualBalance.mean(
+      data.matrix(design_mat),
+      as.vector(response_vec),
+      balance.target = as.vector(target_vec),
+      zeta = zeta,
+      fit.method = "elnet",
+      alpha = 1,
+      K = K_value,
+      optimizer = optimizer
+    )
+    
+    return(as.numeric(output[1]))
+  }
+  
+  estimate_one_direction <- function(fold_B, fold_eval) {
+    
+    ############################
+    # Fold-specific indices
+    ############################
+    fold_B_treat <- intersect(fold_B, treat_index)
+    fold_B_control <- intersect(fold_B, control_index)
+    
+    fold_eval_treat <- intersect(fold_eval, treat_index)
+    fold_eval_control <- intersect(fold_eval, control_index)
+    
+    ############################
+    # Data used to estimate B0 and B1
+    ############################
+    Xt_B <- data.matrix(X[fold_B_treat, , drop = FALSE])
+    Xc_B <- data.matrix(X[fold_B_control, , drop = FALSE])
+    
+    M1_B <- data.matrix(M[fold_B_treat, , drop = FALSE])
+    M0_B <- data.matrix(M[fold_B_control, , drop = FALSE])
+    
+    ############################
+    # Data used to estimate gamma and residual balancing
+    ############################
+    Xt_eval <- data.matrix(X[fold_eval_treat, , drop = FALSE])
+    Xc_eval <- data.matrix(X[fold_eval_control, , drop = FALSE])
+    
+    M1_eval <- data.matrix(M[fold_eval_treat, , drop = FALSE])
+    M0_eval <- data.matrix(M[fold_eval_control, , drop = FALSE])
+    
+    Yt_eval <- Y[fold_eval_treat]
+    Yc_eval <- Y[fold_eval_control]
+    
+    Wt_eval <- data.matrix(cbind(Xt_eval, M1_eval))
+    Wc_eval <- data.matrix(cbind(Xc_eval, M0_eval))
+    
+    ############################
+    # Nuisance estimation
+    ############################
+    B0_hat <- fit_B_lasso(Xc_B, M0_B)
+    B1_hat <- fit_B_lasso(Xt_B, M1_B)
+    
+    gamma_1_hat <- fit_gamma_lasso(Xt_eval, M1_eval, Yt_eval)
+    gamma_0_hat <- fit_gamma_lasso(Xc_eval, M0_eval, Yc_eval)
+    
+    B0_Xbar <- B0_hat %*% X_bar
+    B1_Xbar <- B1_hat %*% X_bar
+    
+    ############################
+    # Y10: treated outcome model + control mediator model
+    ############################
+    contrast_Y10_1 <- c(X_bar, B0_Xbar)
+    
+    outputY10_1 <- rb_mean(
+      Wt_eval,
+      Yt_eval,
+      contrast_Y10_1,
+      K1
+    )
+    
+    M0_gamma_1 <- M0_eval %*% gamma_1_hat
+    
+    outputY10_2 <- rb_mean(
+      Xc_eval,
+      M0_gamma_1,
+      X_bar,
+      K2
+    )
+    
+    Y10_db <- outputY10_1 + outputY10_2 -
+      as.numeric(t(B0_Xbar) %*% gamma_1_hat)
+    
+    ############################
+    # Y11: treated outcome model + treated mediator model
+    ############################
+    contrast_Y11_1 <- c(X_bar, B1_Xbar)
+    
+    outputY11_1 <- rb_mean(
+      Wt_eval,
+      Yt_eval,
+      contrast_Y11_1,
+      K1
+    )
+    
+    M1_gamma_1 <- M1_eval %*% gamma_1_hat
+    
+    outputY11_2 <- rb_mean(
+      Xt_eval,
+      M1_gamma_1,
+      X_bar,
+      K2
+    )
+    
+    Y11_db <- outputY11_1 + outputY11_2 -
+      as.numeric(t(B1_Xbar) %*% gamma_1_hat)
+    
+    ############################
+    # Y00: control outcome model + control mediator model
+    ############################
+    contrast_Y00_1 <- c(X_bar, B0_Xbar)
+    
+    outputY00_1 <- rb_mean(
+      Wc_eval,
+      Yc_eval,
+      contrast_Y00_1,
+      K1
+    )
+    
+    M0_gamma_0 <- M0_eval %*% gamma_0_hat
+    
+    outputY00_2 <- rb_mean(
+      Xc_eval,
+      M0_gamma_0,
+      X_bar,
+      K2
+    )
+    
+    Y00_db <- outputY00_1 + outputY00_2 -
+      as.numeric(t(B0_Xbar) %*% gamma_0_hat)
+    
+    return(c(
+      Y10_db = Y10_db,
+      Y11_db = Y11_db,
+      Y00_db = Y00_db
+    ))
+  }
+  
+  ###########################
+  # Two directions of CF
+  ###########################
+  est_1 <- estimate_one_direction(fold_B = D1, fold_eval = D2)
+  est_2 <- estimate_one_direction(fold_B = D2, fold_eval = D1)
+  
+  ###########################
+  # Final cross-fitted estimates
+  ###########################
+  Y10_db <- 0.5 * (est_1["Y10_db"] + est_2["Y10_db"])
+  Y11_db <- 0.5 * (est_1["Y11_db"] + est_2["Y11_db"])
+  Y00_db <- 0.5 * (est_1["Y00_db"] + est_2["Y00_db"])
+  
+  ########################### Results ###########################
+  NIE_debiasing <- Y11_db - Y10_db
+  NDE_debiasing <- Y10_db - Y00_db
+  TE_de <- NIE_debiasing + NDE_debiasing
+  
+  end_time <- Sys.time()   
+  elapsed_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
+  
+  cat("Loop:", i,
+      "| NIE:", NIE_debiasing,
+      "| NDE:", NDE_debiasing,
+      "| TE:", TE_de,
+      "| Time:", round(elapsed_time, 2), "sec\n")
+  
+  c(NIE_debiasing, NDE_debiasing, TE_de, elapsed_time)
+}
+
+# ===========================
+# Convert result
+# ===========================
+res <- res_list[, 1:3]
+time_per_loop <- res_list[, 4]
+```
+
+
+```{r}
+# Define Bootstrap Function
+boot_fn <- function(data, indices) {
+  sample_data <- data[indices]  # Resample data
+  stat <- mean(sample_data)  # Compute statistic (mean)
+  se <- sd(sample_data) / sqrt(length(sample_data))  # Compute standard error
+  return(c(stat, se))  # Return both statistic & SE
+}
+
+# Compute Bootstrap CIs for Each Column in boot.results
+results_list <- list()
+# col_names <- c("Y11_db", "Y10_db", "Y00_db", "NIE_debiasing", "NDE_debiasing", "TE_de")
+col_names <- c("NIE_debiasing", "NDE_debiasing", "TE_de")
+
+for (i in 1:3) {
+  # Create boot object
+  boot_obj <- boot(data = boot_results[,i, drop = T], statistic = boot_fn, R = n.boot)
+  
+  # Compute CIs
+  bca_CI <- round(boot.ci(boot_obj, type = "bca")$bca[4:5], 5)  # Extract BCa CI
+  t_CI <- round(boot.ci(boot_obj, type = "stud")$stud[4:5], 5)  # Extract Bootstrap-t CI
+  quantile_CI <- round(quantile(boot_results[,i, drop = T], probs = c(0.025, 0.975)), 5)  # Quantile CI
+
+  # Store results
+  results_list[[i]] <- c(col_names[i], round(mean(boot_results[,i, drop = T]), 5), 
+                         paste0("(", bca_CI[1], ", ", bca_CI[2], ")"),
+                         paste0("(", t_CI[1], ", ", t_CI[2], ")"),
+                         paste0("(", quantile_CI[1], ", ", quantile_CI[2], ")"))
+}
+
+# Convert list to dataframe
+results_df <- as.data.frame(do.call(rbind, results_list))
+colnames(results_df) <- c("Estimator", "Mean", "BCa CI", "Bootstrap-t CI", "Quantile CI")
+
+# Print results as a formatted table
+print(results_df)
+```
+
+
+```{r}
+t.test(bootresultsHighD$NIE)
+t.test(bootresultsHighD$NDE)
+t.test(bootresultsHighD$TE)
+```
+
+
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+
+# Histogram
+hist_plot <- ggplot(data.frame(boot_results[,2, drop = T]), aes(x = boot_results[,3, drop = T])) +
+  geom_histogram(bins = 30, fill = "blue", alpha = 0.7, color = "black") +
+  labs(title = "Histogram of Bootstrap Estimates", x = expression(hat(theta)), y = "Count") +
+  theme_minimal()
+
+# QQ-Plot
+qq_plot <- ggplot(data.frame(boot_results[,3, drop = T]), aes(sample = boot_results[,3, drop = T])) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "QQ-Plot of Bootstrap Estimates", x = "Theoretical Quantiles", y = "Sample Quantiles") +
+  theme_minimal()
+
+# Display plots
+library(gridExtra)
+grid.arrange(hist_plot, qq_plot, ncol = 2)
+
+```

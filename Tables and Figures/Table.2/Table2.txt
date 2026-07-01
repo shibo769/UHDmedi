@@ -1,0 +1,18 @@
+
+\begin{table}[t]
+\centering
+\small 
+\begin{tabular}{cccc}
+\hline
+\multicolumn{1}{c}{}                & \multicolumn{1}{c}{Estimate} & Bootstrap Mean&Quantile CI (95\%)\\ \hline
+\multicolumn{1}{c}{Indirect Effect} & \multicolumn{1}{c}{-0.2486
+}     & -0.3319&(-0.7266, -0.0042) 
+\\ \hline
+\multicolumn{1}{c}{Direct Effect} & \multicolumn{1}{c}{-0.1022
+}     & -0.0730&(-0.5840, 0.2796) 
+\\ \hline
+\multicolumn{1}{c}{Total Effect} & \multicolumn{1}{c}{-0.3508}     & -0.4049&(-0.8297, -0.0254) \\ \hline
+\end{tabular}
+\caption{Summary of the effects with mean and confidence interval (CI) under 300-sample bootstrap.} 
+\label{tab:results1}
+\end{table}

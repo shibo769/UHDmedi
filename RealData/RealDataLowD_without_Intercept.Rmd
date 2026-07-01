@@ -1,0 +1,256 @@
+---
+title: "RealDataNoBoot"
+author: "Shi Bo"
+date: "2025-01-25"
+output: pdf_document
+---
+
+### Packages ###
+```{r}
+# detach("package:ranger", unload=TRUE)
+# install.packages("Matrix")
+library(data.table)
+library(balanceHD)
+library(caret)
+# library(glmnet)
+library(foreach)
+library(doParallel)
+library(tidyverse)
+library(balanceHD)
+library(boot)
+```
+
+### Read Files ###
+```{r}
+A_Smoking <- readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/A_Smoking.rds") 
+X_NoPolyInteraction <- readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/X_NoPolyInteraction.rds")
+Y_SurvivalTime <- readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/Y_SurvivalTime.rds")
+M_important_by_paper <- readRDS("/usr3/graduate/shibo/UHDmediation/CleanedDataLungCancer/M_important_by_paper.rds")
+nn = length(A_Smoking)
+```
+
+```{r}
+########################### Data Matrices ###########################
+X <- X_NoPolyInteraction
+M <- M_important_by_paper 
+A <- A_Smoking
+Y <- Y_SurvivalTime
+Y <- log(Y)
+
+cat("The dim of X" , dim(X), "\n")
+cat("The dim of M" , dim(M), "\n")
+cat("The dim of A" , dim(as.matrix(A)), "\n")
+cat("The dim of Y" , dim(as.matrix(Y)), "\n")
+cat("Dim of (X,M):",dim(X)[2] + dim(M)[2])
+
+
+```
+
+```{r}
+########################### Parameters ###########################
+n.boot <- 300  # Number of bootstrap iterations
+p <- dim(X)[2]
+q <- dim(M)[2]
+```
+
+```{r}
+########################### Parallel Bootstrap Setup ###########################
+num_cores <- detectCores() - 1  # Use available cores minus one
+cl <- makeCluster(num_cores)
+registerDoParallel(cl)
+```
+
+
+```{r}
+# Bootstrap function with two-fold cross fitting
+bootstrap_results <- foreach(b = 1:n.boot, .combine = rbind, .packages = c("glmnet", "tidyverse")) %dopar% {
+  
+  # Sample with replacement
+  sample_indices <- sample(1:nrow(X), replace = F)
+  X_boot <- X[sample_indices, ] 
+  M_boot <- M[sample_indices, ] 
+  A_boot <- A[sample_indices]
+  Y_boot <- Y[sample_indices]
+  X_bar_boot <- colMeans(X_boot)
+  
+  # Treatment and control groups
+  treat_index <- which(A_boot == 1)
+  control_index <- which(A_boot == 0)
+  
+  n_boot <- nrow(X_boot)
+  
+  ###########################
+  # Stratified two-fold split
+  ###########################
+  treat_perm <- sample(treat_index, length(treat_index), replace = FALSE)
+  control_perm <- sample(control_index, length(control_index), replace = FALSE)
+  
+  D1 <- c(
+    treat_perm[seq_len(floor(length(treat_perm) / 2))],
+    control_perm[seq_len(floor(length(control_perm) / 2))]
+  )
+  D2 <- setdiff(seq_len(n_boot), D1)
+  
+  ###########################
+  # Helper: safe OLS coefficient
+  ###########################
+  safe_lm_coef <- function(design_mat, response_vec) {
+    design_mat <- data.matrix(design_mat)
+    response_vec <- as.vector(response_vec)
+    
+    fit <- lm.fit(x = design_mat, y = response_vec)
+    coef_vec <- as.vector(fit$coefficients)
+    
+    # In case a half-sample fold is rank deficient
+    coef_vec[is.na(coef_vec)] <- 0
+    
+    return(coef_vec)
+  }
+  
+  ###########################
+  # One CF direction
+  ###########################
+  estimate_one_direction <- function(fold_B, fold_phi) {
+    
+    # Indices for mediator-model estimation
+    fold_B_treat <- intersect(fold_B, treat_index)
+    fold_B_control <- intersect(fold_B, control_index)
+    
+    # Indices for outcome-model estimation
+    fold_phi_treat <- intersect(fold_phi, treat_index)
+    fold_phi_control <- intersect(fold_phi, control_index)
+    
+    ###########################
+    # Data for B0 and B1
+    ###########################
+    Xt_B <- data.matrix(X_boot[fold_B_treat, , drop = FALSE])
+    Xc_B <- data.matrix(X_boot[fold_B_control, , drop = FALSE])
+    
+    M1_B <- data.matrix(M_boot[fold_B_treat, , drop = FALSE])
+    M0_B <- data.matrix(M_boot[fold_B_control, , drop = FALSE])
+    
+    ###########################
+    # Data for phi_1 and phi_0
+    ###########################
+    Xt_phi <- data.matrix(X_boot[fold_phi_treat, , drop = FALSE])
+    Xc_phi <- data.matrix(X_boot[fold_phi_control, , drop = FALSE])
+    
+    M1_phi <- data.matrix(M_boot[fold_phi_treat, , drop = FALSE])
+    M0_phi <- data.matrix(M_boot[fold_phi_control, , drop = FALSE])
+    
+    Yt_phi <- Y_boot[fold_phi_treat]
+    Yc_phi <- Y_boot[fold_phi_control]
+    
+    bold_Wt_phi <- data.matrix(cbind(Xt_phi, M1_phi))
+    bold_Wc_phi <- data.matrix(cbind(Xc_phi, M0_phi))
+    
+    ###########################
+    # Estimate phi_1 on fold_phi treated
+    ###########################
+    phi_1_hat <- safe_lm_coef(bold_Wt_phi, Yt_phi)
+    beta_1_hat <- phi_1_hat[1:p]
+    gamma_1_hat <- phi_1_hat[(p + 1):(p + q)]
+    
+    ###########################
+    # Estimate phi_0 on fold_phi control
+    ###########################
+    phi_0_hat <- safe_lm_coef(bold_Wc_phi, Yc_phi)
+    beta_0_hat <- phi_0_hat[1:p]
+    gamma_0_hat <- phi_0_hat[(p + 1):(p + q)]
+    
+    ###########################
+    # Estimate B0 on fold_B control
+    ###########################
+    B0_hat <- matrix(0, q, p)
+    
+    for (j in 1:ncol(M0_B)) {
+      Mi <- M0_B[, j]
+      B0_hat[j, ] <- safe_lm_coef(Xc_B, Mi)
+    }
+    
+    ###########################
+    # Estimate B1 on fold_B treated
+    ###########################
+    B1_hat <- matrix(0, q, p)
+    
+    for (j in 1:ncol(M1_B)) {
+      Mi <- M1_B[, j]
+      B1_hat[j, ] <- safe_lm_coef(Xt_B, Mi)
+    }
+    
+    ###########################
+    # Plug-in estimators
+    ###########################
+    Y10 <- as.numeric(
+      t(X_bar_boot) %*% (beta_1_hat + t(B0_hat) %*% gamma_1_hat)
+    )
+    
+    Y11 <- as.numeric(
+      t(X_bar_boot) %*% (beta_1_hat + t(B1_hat) %*% gamma_1_hat)
+    )
+    
+    Y00 <- as.numeric(
+      t(X_bar_boot) %*% (beta_0_hat + t(B0_hat) %*% gamma_0_hat)
+    )
+    
+    return(c(Y11 = Y11, Y10 = Y10, Y00 = Y00))
+  }
+  
+  ###########################
+  # Two directions of cross fitting
+  ###########################
+  est_1 <- estimate_one_direction(fold_B = D1, fold_phi = D2)
+  est_2 <- estimate_one_direction(fold_B = D2, fold_phi = D1)
+  
+  ###########################
+  # Final CF estimator
+  ###########################
+  Y11 <- 0.5 * (est_1["Y11"] + est_2["Y11"])
+  Y10 <- 0.5 * (est_1["Y10"] + est_2["Y10"])
+  Y00 <- 0.5 * (est_1["Y00"] + est_2["Y00"])
+  
+  # Compute effects
+  NIE_OLS <- Y11 - Y10
+  NDE_OLS <- Y10 - Y00
+  TE_OLS  <- NIE_OLS + NDE_OLS
+  
+  c(Y11, Y10, Y00, NIE_OLS, NDE_OLS, TE_OLS)
+}
+```
+
+```{r}
+# Define Bootstrap Function
+boot_fn <- function(data, indices) {
+  sample_data <- data[indices]  # Resample data
+  stat <- mean(sample_data)  # Compute statistic (mean)
+  se <- sd(sample_data) / sqrt(length(sample_data))  # Compute standard error
+  return(c(stat, se))  # Return both statistic & SE
+}
+
+# Compute Bootstrap CIs for Each Column in boot.results
+results_list <- list()
+col_names <- c("Y11_OLS", "Y10_OLS", "Y00_OLS", "NIE_OLS", "NDE_OLS", "TE_OLS")
+
+for (i in 1:6) {
+  # Create boot object
+  boot_obj <- boot(data = bootstrap_results[,i], statistic = boot_fn, R = n.boot)
+  
+  # Compute CIs
+  bca_CI <- round(boot.ci(boot_obj, type = "bca")$bca[4:5], 4)  # Extract BCa CI
+  t_CI <- round(boot.ci(boot_obj, type = "stud")$stud[4:5], 4)  # Extract Bootstrap-t CI
+  quantile_CI <- round(quantile(bootstrap_results[,i], probs = c(0.025, 0.975)), 4)  # Quantile CI
+
+  # Store results
+  results_list[[i]] <- c(col_names[i], round(mean(bootstrap_results[,i]), 4), 
+                         paste0("(", bca_CI[1], ", ", bca_CI[2], ")"),
+                         paste0("(", t_CI[1], ", ", t_CI[2], ")"),
+                         paste0("(", quantile_CI[1], ", ", quantile_CI[2], ")"))
+}
+
+# Convert list to dataframe
+results_df <- as.data.frame(do.call(rbind, results_list))
+colnames(results_df) <- c("Estimator", "Mean", "BCa CI", "Bootstrap-t CI", "Quantile CI")
+
+# Print results as a formatted table
+print(results_df)
+```
